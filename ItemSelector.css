@@ -1,0 +1,97 @@
+.itemselector-container {
+	display: none;
+	position: fixed;
+	background-color: #1d1d1d;
+	position: fixed;
+	width: 60vw;
+	height: 60vh;
+	left: 20vw;
+	top: 20vh;
+	border-radius: 1em;
+	padding: 2em;
+}
+.itemselector-container.itemselector-show {
+	display: block;
+}
+
+
+
+.itemselector-header {
+	position: absolute;
+	width: calc(100% - 4em);
+	padding-bottom: 0.3em;
+}
+.itemselector-title {
+	position: relative;
+	font-size: 1.3em;
+}
+.itemselector-body {
+	position: absolute;
+	top: calc(2em + 20px * 1.3 + 20px * 0.3 + 1px + 0.3em);
+	bottom: calc(2em + 20px + 20px + calc(60vw - 4em) * 2 / 100 + 0.3em);
+	overflow: auto;
+	width: calc(100% - 4em);
+}
+.itemselector-footer {
+	position: absolute;
+	bottom: 2em;
+	width: calc(100% - 4em);
+}
+
+
+
+.itemselector-button {
+	font-size: 20px;
+	width: 48%;
+	margin: 1%;
+	border: none;
+	border-radius: 3px;
+	padding: 0.5em;
+	font-weight: 500;
+}
+.itemselector-button.itemselector-button-close {
+	position: relative;
+	float: right;
+	margin: 0;
+	padding: 0;
+	width: 1.3em;
+	height: 1.3em;
+	text-align: center;
+	font-size: 20px;
+}
+.itemselector-button.itemselector-button-close:hover {
+}
+
+
+.itemselector-list {
+	margin: 0;
+}
+.itemselector-item {
+	position: relative;
+	margin: 0;
+}
+.itemselector-item-root {
+	padding-left: 0;
+}
+.itemselector-item>li::marker {
+	content: "";
+}
+.itemselector-toggle {
+	position: relative;
+	visibility: hidden;
+}
+.itemselector-toggle.itemselector-show {
+	visibility: visible;
+}
+.itemselector-toggle:before {
+	content: "\25BC";
+	width: 1em;
+	display: inline-block;
+	position: relative;
+}
+.itemselector-item-collapsed>li>.itemselector-toggle:before {
+	content: "\25B6";
+}
+.itemselector-item-collapsed>li>.itemselector-item {
+	display: none;
+}

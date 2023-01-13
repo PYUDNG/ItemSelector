@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>ItemSelector test</title>
+	<script type="text/javascript" src="ItemSelector.js"></script>
+	<link rel="stylesheet" type="text/css" href="page.css">
+</head>
+<body>
+	<script type="text/javascript">
+		const IS = new ItemSelector();
+		IS.show({
+			text: 'Root Folder',
+			children: [{
+				text: 'File 1',
+			},{
+				text: 'File 2',
+			},{
+				text: 'Folder 1',
+				children: [{
+					text: 'SubFile 1'
+				}]
+			},{
+				text: 'Folder 2',
+				children: [{
+					text: 'SubFile 1',
+				},{
+					text: 'SubFolder 1',
+					children: [/* Nothing in this folder*/]
+				}]
+			}]
+		}, {
+			title: 'ItemSelector window',
+			onok: function(e, selected) {
+				console.log(selected);
+			},
+			oncancel: function(e) {
+				console.log('cancelled');
+			},
+			onclose: function(e) {
+				console.log('closed')
+			}
+		})
+	</script>
+</body>
+</html>

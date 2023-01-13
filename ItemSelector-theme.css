@@ -1,0 +1,41 @@
+.itemselector-container {
+	box-shadow: 0 3px 15px rgb(0 0 0 / 20%), 0 6px 6px rgb(0 0 0 / 14%), 0 9px 3px -6px rgb(0 0 0 / 12%);
+	color: #fff;
+}
+
+
+
+.itemselector-header {
+	border-bottom: 1px solid rgba(255,255,255,0.28);
+}
+
+
+
+.itemselector-body {
+	scrollbar-color: #323232 #222222;
+}
+.itemselector-body:hover {
+	scrollbar-color: #424242 #222222;
+}
+.itemselector-body::-webkit-scrollbar {
+	background-color: #222222;
+}
+.itemselector-body::-webkit-scrollbar-thumb, .itemselector-body::-webkit-scrollbar-button {
+	background-color: #323232;
+}
+.itemselector-body::-webkit-scrollbar-thumb:hover, .itemselector-body::-webkit-scrollbar-button:hover {
+	background-color: #424242;
+}
+
+
+
+.itemselector-button {
+	background-color: #00bcd4;
+	color: #fff;
+}
+.itemselector-button.itemselector-button-close {
+	background-color: #323232;
+}
+.itemselector-button.itemselector-button-close:hover {
+	background-color: #424242;
+}
