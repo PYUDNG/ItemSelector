@@ -217,10 +217,13 @@
 			// elements
 			const {container, header, title, body, footer, bglist, list} = elements;
 
+			// cleanings
+			[...list.children].forEach(c => c.remove());
+			[...bglist.children].forEach(c => c.remove());
+
 			// make new <ul>
 			const ul = makeListItem(json);
 			ul.classList.add('itemselector-item-root');
-			[...list.children].forEach(c => c.remove());
 			list.appendChild(ul);
 
 			// configure with options
@@ -260,7 +263,18 @@
 				hasChild && toggle.classList.add('itemselector-show');
 				$AEL(toggle, 'click', e => {
 					destroyEvent(e);
-					div.classList[[...div.classList].includes('itemselector-item-collapsed') ? 'remove' : 'add']('itemselector-item-collapsed');
+					const collapsed = [...div.classList].includes('itemselector-item-collapsed');
+					div.classList[collapsed ? 'remove' : 'add']('itemselector-item-collapsed');
+					toggleBackground(item);
+
+					function toggleBackground(item) {
+						if (Array.isArray(item.children)) {
+							for (const child of item.children) {
+								child.elements.background.classList[collapsed ? 'remove' : 'add']('itemselector-hide');
+								toggleBackground(child);
+							}
+						}
+					}
 				});
 				self_container.appendChild(toggle);
 

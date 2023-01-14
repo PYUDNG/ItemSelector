@@ -87,6 +87,9 @@
 .itemselector-item-background:first-child {
 	border-top: none;
 }
+.itemselector-item-background.itemselector-hide {
+	display: none;
+}
 .itemselector-item-self {
 	font-size: 14px;
 	line-height: 34px;

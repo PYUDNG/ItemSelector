@@ -40,6 +40,9 @@
 .itemselector-body::-webkit-scrollbar {
 	background-color: var(--itemselector-bgcolor-1);
 }
+.itemselector-body::-webkit-scrollbar-corner {
+	background-color: var(--itemselector-bgcolor-1);
+}
 .itemselector-body::-webkit-scrollbar-thumb, .itemselector-body::-webkit-scrollbar-button {
 	background-color: var(--itemselector-bgcolor-2);
 }
