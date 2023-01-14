@@ -6,29 +6,64 @@
 	<script type="text/javascript" src="ItemSelector.js"></script>
 	<link rel="stylesheet" type="text/css" href="page.css">
 </head>
-<body>
+<body class='dark'>
 	<script type="text/javascript">
-		const IS = new ItemSelector();
-		IS.show({
-			text: 'Root Folder',
+		const IS = new ItemSelector(false);
+		IS.setTheme(document.body.classList[0]);
+		IS.show(json = {
+			text: '根文件夹',
 			children: [{
-				text: 'File 1',
-			},{
-				text: 'File 2',
-			},{
-				text: 'Folder 1',
+				text: '文件 1',
+			}, {
+				text: '文件 2',
+			}, {
+				text: '一级子文件夹 1',
 				children: [{
-					text: 'SubFile 1'
+					text: '文件 3',
+				}, {
+					text: '二级子文件夹',
+					children: [{
+						text: '文件 4',
+					}, {
+						text: '文件 5',
+					}, {
+						text: '三级子文件夹 1',
+						children: [{
+							text: '文件 6'
+						}, {
+							text: '文件 7'
+						}, {
+							text: '文件 8'
+						}, {
+							text: '四级子文件夹(空)',
+							children: []
+						}]
+					}, {
+						text: '三级子文件夹 2',
+						children: [{
+							text: '文件 9'
+						}, {
+							text: '文件 10'
+						}, {
+							text: '文件 11'
+						}, {
+							text: '四级子文件夹',
+							children: [{
+								text: '文件12'
+							}]
+						}]
+					}, {
+						text: '三级子文件夹 3(空)',
+						children: []
+					}]
+				}, {
+					text: '文件 13'
 				}]
-			},{
-				text: 'Folder 2',
-				children: [{
-					text: 'SubFile 1',
-				},{
-					text: 'SubFolder 1',
-					children: [/* Nothing in this folder*/]
-				}]
-			}]
+			}, {
+				text: '一级子文件夹 2(空)',
+				children: [],
+			}],
+			otherProp: [0,1,2,3,'a','b','c',true,false,null,undefined,{},[]]
 		}, {
 			title: 'ItemSelector window',
 			onok: function(e, selected) {

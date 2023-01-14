@@ -94,16 +94,20 @@
 		defineGetter(IS, 'options', () => MakeReadonlyObj(DATA.options));
 		IS.show = show;
 		IS.close = close;
+		IS.setTheme = setTheme;
 		IS.getSelectedItems = getSelectedItems;
 		init();
 
 		function init() {
-			const wrapper = useWrapper ? (function() {
+			const wrapperDoc = elements.wrapperDoc = useWrapper ? (function() {
 				const wrapper = elements.wrapper = $CrE(randstr(4, false, false) + '-' + randstr(4, false, false));
 				const shadow = wrapper.attachShadow({mode: 'closed'});
+				wrapper.style.display = 'block';
+				wrapper.style.zIndex = 99999999;
 				document.body.appendChild(wrapper);
 				return shadow;
-			}) () : document.body;
+			}) () : document;
+			const wrapper = elements.wrapper = useWrapper ? wrapperDoc : wrapperDoc.body;
 			const container = elements.container = $CrE('div');
 			const header = elements.header = $CrE('div');
 			const body = elements.body = $CrE('div');
@@ -120,6 +124,10 @@
 			const title = elements.title = $CrE('span');
 			title.classList.add('itemselector-title');
 			header.appendChild(title);
+
+			const bglist = elements.bglist = $CrE('div');
+			bglist.classList.add('itemselector-bglist');
+			body.appendChild(bglist);
 
 			const list = elements.list = $CrE('pre');
 			list.classList.add('itemselector-list');
@@ -143,7 +151,7 @@
 			elements.button = {btnOK, btnCancel, btnClose};
 
 			const cssParent = useWrapper ? wrapper : document.head;
-			const css = '.itemselector-container {display: none;position: fixed;background-color: #1d1d1d;position: fixed;width: 60vw;height: 60vh;left: 20vw;top: 20vh;border-radius: 1em;padding: 2em;}.itemselector-container.itemselector-show {display: block;}.itemselector-header {position: absolute;width: calc(100% - 4em);padding-bottom: 0.3em;}.itemselector-title {position: relative;font-size: 1.3em;}.itemselector-body {position: absolute;top: calc(2em + 20px * 1.3 + 20px * 0.3 + 1px + 0.3em);bottom: calc(2em + 20px + 20px + calc(60vw - 4em) * 2 / 100 + 0.3em);overflow: auto;width: calc(100% - 4em);}.itemselector-footer {position: absolute;bottom: 2em;width: calc(100% - 4em);}.itemselector-button {font-size: 20px;width: 48%;margin: 1%;border: none;border-radius: 3px;padding: 0.5em;font-weight: 500;}.itemselector-button.itemselector-button-close {position: relative;float: right;margin: 0;padding: 0;width: 1.3em;height: 1.3em;text-align: center;font-size: 20px;}.itemselector-button.itemselector-button-close:hover {}.itemselector-list {margin: 0;}.itemselector-item {position: relative;margin: 0;}.itemselector-item-root {padding-left: 0;}.itemselector-item>li::marker {content: "";}.itemselector-toggle {position: relative;visibility: hidden;}.itemselector-toggle.itemselector-show {visibility: visible;}.itemselector-toggle:before {content: "\\25BC";width: 1em;display: inline-block;position: relative;}.itemselector-item-collapsed>li>.itemselector-toggle:before {content: "\\25B6";}.itemselector-item-collapsed>li>.itemselector-item {display: none;}.itemselector-container {box-shadow: 0 3px 15px rgb(0 0 0 / 20%), 0 6px 6px rgb(0 0 0 / 14%), 0 9px 3px -6px rgb(0 0 0 / 12%);color: #fff;}.itemselector-header {border-bottom: 1px solid rgba(255,255,255,0.28);}.itemselector-body {scrollbar-color: #323232 #222222;}.itemselector-body:hover {scrollbar-color: #424242 #222222;}.itemselector-body::-webkit-scrollbar {background-color: #222222;}.itemselector-body::-webkit-scrollbar-thumb, .itemselector-body::-webkit-scrollbar-button {background-color: #323232;}.itemselector-body::-webkit-scrollbar-thumb:hover, .itemselector-body::-webkit-scrollbar-button:hover {background-color: #424242;}.itemselector-button {background-color: #00bcd4;color: #fff;}.itemselector-button.itemselector-button-close {background-color: #323232;}.itemselector-button.itemselector-button-close:hover {background-color: #424242;}';
+			const css = '.itemselector-container {display: none;position: fixed;position: fixed;width: 60vw;height: 60vh;left: 20vw;top: 20vh;border-radius: 1em;padding: 2em;user-select: none;font-family: -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Hiragino Sans GB,Microsoft YaHei,Helvetica Neue,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol!important;}.itemselector-container.itemselector-show {display: block;}.itemselector-header {position: absolute;width: calc(100% - 4em);padding-bottom: 0.3em;}.itemselector-title {position: relative;font-size: 1.3em;}.itemselector-body {position: absolute;top: calc(2em + 20px * 1.3 + 20px * 0.3 + 1px + 0.3em);bottom: calc(2em + 20px + 20px + calc(60vw - 4em) * 2 / 100 + 0.3em);overflow: auto;width: calc(100% - 4em);z-index: -2;}.itemselector-bglist {position: absolute;left: 0;width: 100%;z-index: -1;}.itemselector-footer {position: absolute;bottom: 2em;width: calc(100% - 4em);}.itemselector-button {font-size: 20px;width: 48%;margin: 1%;border: none;border-radius: 3px;padding: 0.5em;font-weight: 500;}.itemselector-button.itemselector-button-close {position: relative;float: right;margin: 0;padding: 0;width: 1.3em;height: 1.3em;text-align: center;font-size: 20px;}.itemselector-list {margin: 0;pointer-events: none;}.itemselector-item {margin: 0;margin-left: 1em;}.itemselector-item-root {margin-left: 0;}.itemselector-item-background {width: 100%;height: 49px;}.itemselector-item-background:first-child {border-top: none;}.itemselector-item-self {font-size: 14px;line-height: 34px;padding: 8px;background-color: rgba(0,0,0,0);pointer-events: auto;}.itemselector-toggle {position: relative;visibility: hidden;}.itemselector-toggle.itemselector-show {visibility: visible;}.itemselector-toggle:before {content: "\\25BC";width: 1em;display: inline-block;position: relative;}.itemselector-item-collapsed>.itemselector-item-self>.itemselector-toggle:before {content: "\\25B6";}.itemselector-item-collapsed>.itemselector-item-child>.itemselector-item {display: none;}.itemselector-text {pointer-events: none;margin-left: 0.5em;}.itemselector-container.light {--itemselector-color: #000;--itemselector-bgcolor-1: #dddddd;--itemselector-bgcolor-0: #e2e2e2;--itemselector-bgcolor-2: #cdcdcd;--itemselector-bgcolor-3: #bdbdbd;--itemselector-btnclose-bgcolor: #00bcd4;--itemselector-spliter-color: rgba(0,0,0,0.28);}.itemselector-container.dark {--itemselector-color: #fff;--itemselector-bgcolor-0: #1d1d1d;--itemselector-bgcolor-1: #222222;--itemselector-bgcolor-2: #323232;--itemselector-bgcolor-3: #424242;--itemselector-btnclose-bgcolor: #00bcd4;--itemselector-spliter-color: rgba(255,255,255,0.28);}.itemselector-container {box-shadow: 0 3px 15px rgb(0 0 0 / 20%), 0 6px 6px rgb(0 0 0 / 14%), 0 9px 3px -6px rgb(0 0 0 / 12%);color: var(--itemselector-color);background-color: var(--itemselector-bgcolor-0);}.itemselector-header {border-bottom: 1px solid var(--itemselector-spliter-color);}.itemselector-body {scrollbar-color: var(--itemselector-bgcolor-2) var(--itemselector-bgcolor-1);}.itemselector-body:hover {scrollbar-color: var(--itemselector-bgcolor-3) var(--itemselector-bgcolor-1);}.itemselector-body::-webkit-scrollbar {background-color: var(--itemselector-bgcolor-1);}.itemselector-body::-webkit-scrollbar-thumb, .itemselector-body::-webkit-scrollbar-button {background-color: var(--itemselector-bgcolor-2);}.itemselector-body::-webkit-scrollbar-thumb:hover, .itemselector-body::-webkit-scrollbar-button:hover {background-color: var(--itemselector-bgcolor-3);}.itemselector-item-background {transition-duration: 0.3s;border-top: 1px solid var(--itemselector-spliter-color);}.itemselector-item-background.itemselector-item-hover {background-color: var(--itemselector-bgcolor-2);}.itemselector-button {background-color: var(--itemselector-btnclose-bgcolor);color: var(--itemselector-color);}.itemselector-button.itemselector-button-close {background-color: var(--itemselector-bgcolor-2);}.itemselector-button.itemselector-button-close:hover {background-color: var(--itemselector-bgcolor-3);}';
 			const style = $CrE('style');
 			style.innerHTML = css;
 			cssParent.appendChild(style);
@@ -204,7 +212,7 @@
 			DATA.data = makeData(json);
 
 			// elements
-			const {container, header, title, body, footer, list} = elements;
+			const {container, header, title, body, footer, bglist, list} = elements;
 
 			// make new <ul>
 			const ul = makeListItem(json);
@@ -225,12 +233,23 @@
 				const item = pathItem(path);
 				const hasChild = Array.isArray(item.children);
 
-				// create new ul>li
-				const ul = item.elements.ul = $CrE('ul');
-				const li = item.elements.li = $CrE('li');
-				ul.classList.add('itemselector-item');
-				hasChild && ul.classList.add('itemselector-item-parent');
-				ul.appendChild(li);
+				// create new div
+				const div = item.elements.div = $CrE('div');
+				const self_container = item.elements.self_container = $CrE('div');
+				const child_container = item.elements.child_container = $CrE('div');
+				const background = item.elements.background = $CrE('div');
+				div.classList.add('itemselector-item');
+				self_container.classList.add('itemselector-item-self');
+				child_container.classList.add('itemselector-item-child');
+				background.classList.add('itemselector-item-background');
+				hasChild && div.classList.add('itemselector-item-parent');
+				$AEL(background, 'mouseenter', e => background.classList.add('itemselector-item-hover'));
+				$AEL(background, 'mouseleave', e => background.classList.remove('itemselector-item-hover'));
+				$AEL(self_container, 'mouseenter', e => background.classList.add('itemselector-item-hover'));
+				$AEL(self_container, 'mouseleave', e => background.classList.remove('itemselector-item-hover'));
+				bglist.appendChild(background);
+				div.appendChild(self_container);
+				div.appendChild(child_container);
 
 				// triangle toggle for folder items
 				const toggle = item.elements.toggle = $CrE('a');
@@ -238,22 +257,31 @@
 				hasChild && toggle.classList.add('itemselector-show');
 				$AEL(toggle, 'click', e => {
 					destroyEvent(e);
-					ul.classList[[...ul.classList].includes('itemselector-item-collapsed') ? 'remove' : 'add']('itemselector-item-collapsed');
+					div.classList[[...div.classList].includes('itemselector-item-collapsed') ? 'remove' : 'add']('itemselector-item-collapsed');
 				});
-				li.appendChild(toggle);
+				self_container.appendChild(toggle);
 
 				// checkbox for selecting
 				const checkbox = item.elements.checkbox = $CrE('input');
 				checkbox.type = 'checkbox';
 				checkbox.classList.add('itemselector-checker');
 				$AEL(checkbox, 'change', checkbox_onChange);
-				li.appendChild(checkbox);
+				self_container.appendChild(checkbox);
+
+				// check checkbox when self_container or background block onclick
+				const clickTargets = [self_container, background]
+				clickTargets.forEach(elm => $AEL(elm, 'click', function(e) {
+					if (clickTargets.includes(e.target)) {
+						checkbox.checked = !checkbox.checked;
+						checkbox_onChange();
+					}
+				}));
 
 				// item text
 				const text = item.elements.text = $CrE('span');
 				text.classList.add('itemselector-text');
 				text.innerText = json_item.text;
-				li.appendChild(text);
+				self_container.appendChild(text);
 
 				// make child items
 				if (hasChild) {
@@ -261,11 +289,11 @@
 					for (let i = 0; i < json_item.children.length; i++) {
 						const childItem = makeListItem(json_item.children[i], [...path, i]);
 						item.elements.children.push(childItem);
-						li.appendChild(childItem);
+						child_container.appendChild(childItem);
 					}
 				}
 
-				return ul;
+				return div;
 
 				function checkbox_onChange(e) {
 					// set select status
@@ -286,6 +314,18 @@
 			DATA.options = null;
 
 			elements.container.classList.remove('itemselector-show');
+		}
+
+		function setTheme(theme='light') {
+			const THEMES = ['light', 'dark'];
+			const root = elements.container;
+			if (THEMES.includes(theme)) {
+				THEMES.filter(t => t !== theme).forEach(t => root.classList.remove(t));
+				root.classList.add(theme);
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		function updateElementSelect() {

@@ -94,16 +94,20 @@
 		defineGetter(IS, 'options', () => MakeReadonlyObj(DATA.options));
 		IS.show = show;
 		IS.close = close;
+		IS.setTheme = setTheme;
 		IS.getSelectedItems = getSelectedItems;
 		init();
 
 		function init() {
-			const wrapper = useWrapper ? (function() {
+			const wrapperDoc = elements.wrapperDoc = useWrapper ? (function() {
 				const wrapper = elements.wrapper = $CrE(randstr(4, false, false) + '-' + randstr(4, false, false));
 				const shadow = wrapper.attachShadow({mode: 'closed'});
+				wrapper.style.display = 'block';
+				wrapper.style.zIndex = 99999999;
 				document.body.appendChild(wrapper);
 				return shadow;
-			}) () : document.body;
+			}) () : document;
+			const wrapper = elements.wrapper = useWrapper ? wrapperDoc : wrapperDoc.body;
 			const container = elements.container = $CrE('div');
 			const header = elements.header = $CrE('div');
 			const body = elements.body = $CrE('div');
@@ -120,6 +124,10 @@
 			const title = elements.title = $CrE('span');
 			title.classList.add('itemselector-title');
 			header.appendChild(title);
+
+			const bglist = elements.bglist = $CrE('div');
+			bglist.classList.add('itemselector-bglist');
+			body.appendChild(bglist);
 
 			const list = elements.list = $CrE('pre');
 			list.classList.add('itemselector-list');
@@ -207,7 +215,7 @@
 			DATA.data = makeData(json);
 
 			// elements
-			const {container, header, title, body, footer, list} = elements;
+			const {container, header, title, body, footer, bglist, list} = elements;
 
 			// make new <ul>
 			const ul = makeListItem(json);
@@ -228,12 +236,23 @@
 				const item = pathItem(path);
 				const hasChild = Array.isArray(item.children);
 
-				// create new ul>li
-				const ul = item.elements.ul = $CrE('ul');
-				const li = item.elements.li = $CrE('li');
-				ul.classList.add('itemselector-item');
-				hasChild && ul.classList.add('itemselector-item-parent');
-				ul.appendChild(li);
+				// create new div
+				const div = item.elements.div = $CrE('div');
+				const self_container = item.elements.self_container = $CrE('div');
+				const child_container = item.elements.child_container = $CrE('div');
+				const background = item.elements.background = $CrE('div');
+				div.classList.add('itemselector-item');
+				self_container.classList.add('itemselector-item-self');
+				child_container.classList.add('itemselector-item-child');
+				background.classList.add('itemselector-item-background');
+				hasChild && div.classList.add('itemselector-item-parent');
+				$AEL(background, 'mouseenter', e => background.classList.add('itemselector-item-hover'));
+				$AEL(background, 'mouseleave', e => background.classList.remove('itemselector-item-hover'));
+				$AEL(self_container, 'mouseenter', e => background.classList.add('itemselector-item-hover'));
+				$AEL(self_container, 'mouseleave', e => background.classList.remove('itemselector-item-hover'));
+				bglist.appendChild(background);
+				div.appendChild(self_container);
+				div.appendChild(child_container);
 
 				// triangle toggle for folder items
 				const toggle = item.elements.toggle = $CrE('a');
@@ -241,22 +260,31 @@
 				hasChild && toggle.classList.add('itemselector-show');
 				$AEL(toggle, 'click', e => {
 					destroyEvent(e);
-					ul.classList[[...ul.classList].includes('itemselector-item-collapsed') ? 'remove' : 'add']('itemselector-item-collapsed');
+					div.classList[[...div.classList].includes('itemselector-item-collapsed') ? 'remove' : 'add']('itemselector-item-collapsed');
 				});
-				li.appendChild(toggle);
+				self_container.appendChild(toggle);
 
 				// checkbox for selecting
 				const checkbox = item.elements.checkbox = $CrE('input');
 				checkbox.type = 'checkbox';
 				checkbox.classList.add('itemselector-checker');
 				$AEL(checkbox, 'change', checkbox_onChange);
-				li.appendChild(checkbox);
+				self_container.appendChild(checkbox);
+
+				// check checkbox when self_container or background block onclick
+				const clickTargets = [self_container, background]
+				clickTargets.forEach(elm => $AEL(elm, 'click', function(e) {
+					if (clickTargets.includes(e.target)) {
+						checkbox.checked = !checkbox.checked;
+						checkbox_onChange();
+					}
+				}));
 
 				// item text
 				const text = item.elements.text = $CrE('span');
 				text.classList.add('itemselector-text');
 				text.innerText = json_item.text;
-				li.appendChild(text);
+				self_container.appendChild(text);
 
 				// make child items
 				if (hasChild) {
@@ -264,11 +292,11 @@
 					for (let i = 0; i < json_item.children.length; i++) {
 						const childItem = makeListItem(json_item.children[i], [...path, i]);
 						item.elements.children.push(childItem);
-						li.appendChild(childItem);
+						child_container.appendChild(childItem);
 					}
 				}
 
-				return ul;
+				return div;
 
 				function checkbox_onChange(e) {
 					// set select status
@@ -289,6 +317,18 @@
 			DATA.options = null;
 
 			elements.container.classList.remove('itemselector-show');
+		}
+
+		function setTheme(theme='light') {
+			const THEMES = ['light', 'dark'];
+			const root = elements.container;
+			if (THEMES.includes(theme)) {
+				THEMES.filter(t => t !== theme).forEach(t => root.classList.remove(t));
+				root.classList.add(theme);
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		function updateElementSelect() {
