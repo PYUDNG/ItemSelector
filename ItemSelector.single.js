@@ -85,16 +85,19 @@
 	function ItemSelector(useWrapper=true) {
 		const IS = this;
 		const DATA = {
-			showing: false, json: null, data: null, options: null
+			showing: false, json: null, data: null, options: null, themes: {}
 		};
 		const elements = IS.elements = {};
 		defineGetter(IS, 'showing', () => DATA.showing);
 		defineGetter(IS, 'json', () => MakeReadonlyObj(DATA.json));
 		defineGetter(IS, 'data', () => MakeReadonlyObj(DATA.data));
 		defineGetter(IS, 'options', () => MakeReadonlyObj(DATA.options));
+		defineGetter(IS, 'themes', () => MakeReadonlyObj(DATA.themes));
 		IS.show = show;
 		IS.close = close;
 		IS.setTheme = setTheme;
+		IS.addTheme = addTheme;
+		IS.removeTheme = removeTheme;
 		IS.getSelectedItems = getSelectedItems;
 		init();
 
@@ -150,11 +153,16 @@
 			footer.appendChild(btnOK);
 			elements.button = {btnOK, btnCancel, btnClose};
 
-			const cssParent = useWrapper ? wrapper : document.head;
-			const css = '.itemselector-container {display: none;position: fixed;position: fixed;width: 60vw;height: 60vh;left: 20vw;top: 20vh;border-radius: 1em;padding: 2em;user-select: none;font-family: -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Hiragino Sans GB,Microsoft YaHei,Helvetica Neue,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol!important;}.itemselector-container.itemselector-show {display: block;}.itemselector-header {position: absolute;width: calc(100% - 4em);padding-bottom: 0.3em;}.itemselector-title {position: relative;font-size: 1.3em;}.itemselector-body {position: absolute;top: calc(2em + 20px * 1.3 + 20px * 0.3 + 1px + 0.3em);bottom: calc(2em + 20px + 20px + calc(60vw - 4em) * 2 / 100 + 0.3em);overflow: auto;width: calc(100% - 4em);z-index: -2;}.itemselector-bglist {position: absolute;left: 0;width: 100%;z-index: -1;}.itemselector-footer {position: absolute;bottom: 2em;width: calc(100% - 4em);}.itemselector-button {font-size: 20px;width: 48%;margin: 1%;border: none;border-radius: 3px;padding: 0.5em;font-weight: 500;}.itemselector-button.itemselector-button-close {position: relative;float: right;margin: 0;padding: 0;width: 1.3em;height: 1.3em;text-align: center;font-size: 20px;}.itemselector-list {margin: 0;pointer-events: none;}.itemselector-item {margin: 0;margin-left: 1em;}.itemselector-item-root {margin-left: 0;}.itemselector-item-background {width: 100%;height: 49px;}.itemselector-item-background:first-child {border-top: none;}.itemselector-item-background.itemselector-hide {display: none;}.itemselector-item-self {font-size: 14px;line-height: 34px;padding: 8px;background-color: rgba(0,0,0,0);pointer-events: auto;}.itemselector-toggle {position: relative;visibility: hidden;}.itemselector-toggle.itemselector-show {visibility: visible;}.itemselector-toggle:before {content: "\\25BC";width: 1em;display: inline-block;position: relative;}.itemselector-item-collapsed>.itemselector-item-self>.itemselector-toggle:before {content: "\\25B6";}.itemselector-item-collapsed>.itemselector-item-child>.itemselector-item {display: none;}.itemselector-text {pointer-events: none;margin-left: 0.5em;}.itemselector-container.light {--itemselector-color: #000;--itemselector-bgcolor-1: #dddddd;--itemselector-bgcolor-0: #e2e2e2;--itemselector-bgcolor-2: #cdcdcd;--itemselector-bgcolor-3: #bdbdbd;--itemselector-btnclose-bgcolor: #00bcd4;--itemselector-spliter-color: rgba(0,0,0,0.28);}.itemselector-container.dark {--itemselector-color: #fff;--itemselector-bgcolor-0: #1d1d1d;--itemselector-bgcolor-1: #222222;--itemselector-bgcolor-2: #323232;--itemselector-bgcolor-3: #424242;--itemselector-btnclose-bgcolor: #00bcd4;--itemselector-spliter-color: rgba(255,255,255,0.28);}.itemselector-container {box-shadow: 0 3px 15px rgb(0 0 0 / 20%), 0 6px 6px rgb(0 0 0 / 14%), 0 9px 3px -6px rgb(0 0 0 / 12%);color: var(--itemselector-color);background-color: var(--itemselector-bgcolor-0);}.itemselector-header {border-bottom: 1px solid var(--itemselector-spliter-color);}.itemselector-body {scrollbar-color: var(--itemselector-bgcolor-2) var(--itemselector-bgcolor-1);}.itemselector-body:hover {scrollbar-color: var(--itemselector-bgcolor-3) var(--itemselector-bgcolor-1);}.itemselector-body::-webkit-scrollbar {background-color: var(--itemselector-bgcolor-1);}.itemselector-body::-webkit-scrollbar-corner {background-color: var(--itemselector-bgcolor-1);}.itemselector-body::-webkit-scrollbar-thumb, .itemselector-body::-webkit-scrollbar-button {background-color: var(--itemselector-bgcolor-2);}.itemselector-body::-webkit-scrollbar-thumb:hover, .itemselector-body::-webkit-scrollbar-button:hover {background-color: var(--itemselector-bgcolor-3);}.itemselector-item-background {transition-duration: 0.3s;border-top: 1px solid var(--itemselector-spliter-color);}.itemselector-item-background.itemselector-item-hover {background-color: var(--itemselector-bgcolor-2);}.itemselector-button {background-color: var(--itemselector-btnclose-bgcolor);color: var(--itemselector-color);}.itemselector-button.itemselector-button-close {background-color: var(--itemselector-bgcolor-2);}.itemselector-button.itemselector-button-close:hover {background-color: var(--itemselector-bgcolor-3);}';
-			const style = $CrE('style');
-			style.innerHTML = css;
-			cssParent.appendChild(style);
+			const cssParent = elements.cssParent = useWrapper ? wrapper : document.head;
+			const preset_themes = {
+				'light': '.itemselector-container.light {--itemselector-color: #000;--itemselector-bgcolor-0: #e2e2e2;--itemselector-bgcolor-1: #dddddd;--itemselector-bgcolor-2: #cdcdcd;--itemselector-bgcolor-3: #bdbdbd;--itemselector-button-bgcolor: #cdcdcd;--itemselector-button-hover-bgcolor: #bdbdbd;--itemselector-spliter-color: rgba(0,0,0,0.28);}',
+				'dark': '.itemselector-container.dark {--itemselector-color: #fff;--itemselector-bgcolor-0: #1d1d1d;--itemselector-bgcolor-1: #222222;--itemselector-bgcolor-2: #323232;--itemselector-bgcolor-3: #424242;--itemselector-button-bgcolor: #323232;--itemselector-button-hover-bgcolor: #424242;--itemselector-spliter-color: rgba(255,255,255,0.28);}'
+			};
+			const default_theme = 'dark';
+			addStyle(cssParent, '.itemselector-container {display: none;position: fixed;position: fixed;width: 60vw;height: 60vh;left: 20vw;top: 20vh;border-radius: 1em;padding: 2em;user-select: none;font-family: -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Hiragino Sans GB,Microsoft YaHei,Helvetica Neue,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol!important;}.itemselector-container.itemselector-show {display: block;}.itemselector-header {position: absolute;width: calc(100% - 4em);padding-bottom: 0.3em;}.itemselector-title {position: relative;font-size: 1.3em;}.itemselector-body {position: absolute;top: calc(2em + 20px * 1.3 + 20px * 0.3 + 1px + 0.3em);bottom: calc(2em + 20px + 20px + calc(60vw - 4em) * 2 / 100 + 0.3em);overflow: auto;width: calc(100% - 4em);z-index: -2;}.itemselector-bglist {position: absolute;left: 0;width: 100%;z-index: -1;}.itemselector-footer {position: absolute;bottom: 2em;width: calc(100% - 4em);}.itemselector-button {font-size: 20px;width: 48%;margin: 1%;border: none;border-radius: 3px;padding: 0.5em;font-weight: 500;}.itemselector-button.itemselector-button-close {position: relative;float: right;margin: 0;padding: 0;width: 1.3em;height: 1.3em;text-align: center;font-size: 20px;}.itemselector-list {margin: 0;pointer-events: none;}.itemselector-item {margin: 0;margin-left: 1em;}.itemselector-item-root {margin-left: 0;}.itemselector-item-background {width: 100%;height: 49px;}.itemselector-item-background:first-child {border-top: none;}.itemselector-item-background.itemselector-hide {display: none;}.itemselector-item-self {font-size: 14px;line-height: 34px;padding: 8px;background-color: rgba(0,0,0,0);pointer-events: auto;}.itemselector-toggle {position: relative;visibility: hidden;}.itemselector-toggle.itemselector-show {visibility: visible;}.itemselector-toggle:before {content: "\\25BC";width: 1em;display: inline-block;position: relative;}.itemselector-item-collapsed>.itemselector-item-self>.itemselector-toggle:before {content: "\\25B6";}.itemselector-item-collapsed>.itemselector-item-child>.itemselector-item {display: none;}.itemselector-text {pointer-events: none;margin-left: 0.5em;}.itemselector-container {box-shadow: 0 3px 15px rgb(0 0 0 / 20%), 0 6px 6px rgb(0 0 0 / 14%), 0 9px 3px -6px rgb(0 0 0 / 12%);color: var(--itemselector-color);background-color: var(--itemselector-bgcolor-0);}.itemselector-header {border-bottom: 1px solid var(--itemselector-spliter-color);}.itemselector-body {scrollbar-color: var(--itemselector-bgcolor-2) var(--itemselector-bgcolor-1);}.itemselector-body:hover {scrollbar-color: var(--itemselector-bgcolor-3) var(--itemselector-bgcolor-1);}.itemselector-body::-webkit-scrollbar {background-color: var(--itemselector-bgcolor-1);}.itemselector-body::-webkit-scrollbar-corner {background-color: var(--itemselector-bgcolor-1);}.itemselector-body::-webkit-scrollbar-thumb, .itemselector-body::-webkit-scrollbar-button {background-color: var(--itemselector-bgcolor-2);}.itemselector-body::-webkit-scrollbar-thumb:hover, .itemselector-body::-webkit-scrollbar-button:hover {background-color: var(--itemselector-bgcolor-3);}.itemselector-item-background {transition-duration: 0.3s;border-top: 1px solid var(--itemselector-spliter-color);}.itemselector-item-background.itemselector-item-hover {background-color: var(--itemselector-bgcolor-2);}.itemselector-button {background-color: var(--itemselector-button-bgcolor);color: var(--itemselector-color);}.itemselector-button:hover {background-color: var(--itemselector-button-hover-bgcolor);}.itemselector-button.itemselector-button-close {background-color: var(--itemselector-bgcolor-2);}.itemselector-button.itemselector-button-close:hover {background-color: var(--itemselector-bgcolor-3);}');
+			for (const [name, css] of Object.entries(preset_themes)) {
+				(name === default_theme ? setTheme : addTheme)(name, css);
+			};
 
 			function ok_onClick(e) {
 				if (!DATA.showing) {
@@ -330,16 +338,39 @@
 			elements.container.classList.remove('itemselector-show');
 		}
 
-		function setTheme(theme='light') {
-			const THEMES = ['light', 'dark'];
-			const root = elements.container;
-			if (THEMES.includes(theme)) {
-				THEMES.filter(t => t !== theme).forEach(t => root.classList.remove(t));
-				root.classList.add(theme);
+		// Set current theme. If css provided, addTheme(name, css) will be called before set.
+		// Returns true unless provided theme name not exists and css not provided.
+		function setTheme(name, css=null) {
+			const themes = DATA.themes;
+			const container = elements.container;
+			const cssParent = elements.cssParent;
+
+			// Call addTheme if css provided
+			css !== null && addTheme(name, css);
+
+			// Set current theme
+			if (themes.hasOwnProperty(name)) {
+				// Set container theme class
+				Object.keys(themes).forEach(n => container.classList.remove(n));
+				container.classList.add(name);
+
+				// Remove other theme css and add cur theme css
+				[...$All(cssParent, `style[theme]`)].forEach(style => cssParent.removeChild(style));
+				addStyle(cssParent, themes[name], {theme: name});
 				return true;
 			} else {
 				return false;
 			}
+		}
+
+		// Add a theme to themes set.
+		function addTheme(name, css) {
+			DATA.themes[name] = css;
+		}
+
+		// Remove a theme from themes set. <style> will be preserved untill setTheme() called.
+		function removeTheme(name) {
+			delete DATA.themes[name];
 		}
 
 		function updateElementSelect() {
@@ -568,6 +599,27 @@
 		e.preventDefault();
 	}
 
+	// Append a style text to document(<head>) with a <style> element
+	// arguments: css | parentElement, css | parentElement, css, attributes
+    function addStyle() {
+    	// Get arguments
+    	const [parentElement, css, attributes] = parseArgs([...arguments], [
+    		[2],
+    		[1,2],
+    		[1,2,3]
+    	], [document.head, '', {}]);
+
+    	// Make <style>
+		const style = document.createElement("style");
+		style.textContent = css;
+		for (const [name, val] of Object.entries(attributes)) {
+			style.setAttribute(name, val);
+		}
+
+		// Append to parentElement
+        parentElement.appendChild(style);
+    }
+
 	function parseArgs(args, rules, defaultValues=[]) {
 		// args and rules should be array, but not just iterable (string is also iterable)
 		if (!Array.isArray(args) || !Array.isArray(rules)) {
@@ -627,6 +679,13 @@
 		function isObject(value) {
 			return ['object', 'function'].includes(typeof value) && value !== null;
 		}
+	}
+
+	// escape str into javascript written format
+	function escJsStr(str, quote='"') {
+		str = str.replaceAll('\\', '\\\\').replaceAll(quote, '\\' + quote).replaceAll('\t', '\\t');
+		str = quote === '`' ? str.replaceAll(/(\$\{[^\}]*\})/g, '\\$1') : str.replaceAll('\r', '\\r').replaceAll('\n', '\\n');
+		return quote + str + quote;
 	}
 
 	// Returns a random string

@@ -1,0 +1,10 @@
+.itemselector-container.light {
+	--itemselector-color: #000;
+	--itemselector-bgcolor-0: #e2e2e2;
+	--itemselector-bgcolor-1: #dddddd;
+	--itemselector-bgcolor-2: #cdcdcd;
+	--itemselector-bgcolor-3: #bdbdbd;
+	--itemselector-button-bgcolor: #00bcd4;
+	--itemselector-button-hover-bgcolor: #00bcd4;
+	--itemselector-spliter-color: rgba(0,0,0,0.28);
+}

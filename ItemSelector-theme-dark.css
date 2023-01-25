@@ -1,0 +1,10 @@
+.itemselector-container.dark {
+	--itemselector-color: #fff;
+	--itemselector-bgcolor-0: #1d1d1d;
+	--itemselector-bgcolor-1: #222222;
+	--itemselector-bgcolor-2: #323232;
+	--itemselector-bgcolor-3: #424242;
+	--itemselector-button-bgcolor: #323232;
+	--itemselector-button-hover-bgcolor: #424242;
+	--itemselector-spliter-color: rgba(255,255,255,0.28);
+}

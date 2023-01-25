@@ -123,3 +123,72 @@
 	pointer-events: none;
 	margin-left: 0.5em;
 }
+
+
+
+
+
+
+
+
+
+
+
+.itemselector-container {
+	box-shadow: 0 3px 15px rgb(0 0 0 / 20%), 0 6px 6px rgb(0 0 0 / 14%), 0 9px 3px -6px rgb(0 0 0 / 12%);
+	color: var(--itemselector-color);
+	background-color: var(--itemselector-bgcolor-0);
+}
+
+
+
+.itemselector-header {
+	border-bottom: 1px solid var(--itemselector-spliter-color);
+}
+
+
+
+.itemselector-body {
+	scrollbar-color: var(--itemselector-bgcolor-2) var(--itemselector-bgcolor-1);
+}
+.itemselector-body:hover {
+	scrollbar-color: var(--itemselector-bgcolor-3) var(--itemselector-bgcolor-1);
+}
+.itemselector-body::-webkit-scrollbar {
+	background-color: var(--itemselector-bgcolor-1);
+}
+.itemselector-body::-webkit-scrollbar-corner {
+	background-color: var(--itemselector-bgcolor-1);
+}
+.itemselector-body::-webkit-scrollbar-thumb, .itemselector-body::-webkit-scrollbar-button {
+	background-color: var(--itemselector-bgcolor-2);
+}
+.itemselector-body::-webkit-scrollbar-thumb:hover, .itemselector-body::-webkit-scrollbar-button:hover {
+	background-color: var(--itemselector-bgcolor-3);
+}
+
+
+
+.itemselector-item-background {
+	transition-duration: 0.3s;
+	border-top: 1px solid var(--itemselector-spliter-color);
+}
+.itemselector-item-background.itemselector-item-hover {
+	background-color: var(--itemselector-bgcolor-2);
+}
+
+
+
+.itemselector-button {
+	background-color: var(--itemselector-button-bgcolor);
+	color: var(--itemselector-color);
+}
+.itemselector-button:hover {
+	background-color: var(--itemselector-button-hover-bgcolor);
+}
+.itemselector-button.itemselector-button-close {
+	background-color: var(--itemselector-bgcolor-2);
+}
+.itemselector-button.itemselector-button-close:hover {
+	background-color: var(--itemselector-bgcolor-3);
+}

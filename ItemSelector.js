@@ -85,16 +85,19 @@
 	function ItemSelector(useWrapper=true) {
 		const IS = this;
 		const DATA = {
-			showing: false, json: null, data: null, options: null
+			showing: false, json: null, data: null, options: null, themes: {}
 		};
 		const elements = IS.elements = {};
 		defineGetter(IS, 'showing', () => DATA.showing);
 		defineGetter(IS, 'json', () => MakeReadonlyObj(DATA.json));
 		defineGetter(IS, 'data', () => MakeReadonlyObj(DATA.data));
 		defineGetter(IS, 'options', () => MakeReadonlyObj(DATA.options));
+		defineGetter(IS, 'themes', () => MakeReadonlyObj(DATA.themes));
 		IS.show = show;
 		IS.close = close;
 		IS.setTheme = setTheme;
+		IS.addTheme = addTheme;
+		IS.removeTheme = removeTheme;
 		IS.getSelectedItems = getSelectedItems;
 		init();
 
@@ -150,14 +153,23 @@
 			footer.appendChild(btnOK);
 			elements.button = {btnOK, btnCancel, btnClose};
 
-			const cssParent = useWrapper ? wrapper : document.head;
-			['ItemSelector.css', 'ItemSelector-theme.css'].forEach(href => {
-				const link = $CrE('link');
-				link.rel = 'stylesheet';
-				link.type = 'text/css';
-				link.href = href;
-				cssParent.appendChild(link);
-			});
+			const cssParent = elements.cssParent = useWrapper ? wrapper : document.head;
+			const link = $CrE('link');
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = 'ItemSelector.css';
+			cssParent.appendChild(link);
+			const preset_themes = {
+				'light': 'ItemSelector-theme-light.css',
+				'dark': 'ItemSelector-theme-dark.css'
+			};
+			const default_theme = 'dark';
+			for (const [name, url] of Object.entries(preset_themes)) {
+				const xhr = new XMLHttpRequest();
+				xhr.open('GET', url);
+				xhr.onload = e => (name === default_theme ? setTheme : addTheme)(name, xhr.responseText);
+				xhr.send();
+			};
 
 			function ok_onClick(e) {
 				if (!DATA.showing) {
@@ -333,16 +345,39 @@
 			elements.container.classList.remove('itemselector-show');
 		}
 
-		function setTheme(theme='light') {
-			const THEMES = ['light', 'dark'];
-			const root = elements.container;
-			if (THEMES.includes(theme)) {
-				THEMES.filter(t => t !== theme).forEach(t => root.classList.remove(t));
-				root.classList.add(theme);
+		// Set current theme. If css provided, addTheme(name, css) will be called before set.
+		// Returns true unless provided theme name not exists and css not provided.
+		function setTheme(name, css=null) {
+			const themes = DATA.themes;
+			const container = elements.container;
+			const cssParent = elements.cssParent;
+
+			// Call addTheme if css provided
+			css !== null && addTheme(name, css);
+
+			// Set current theme
+			if (themes.hasOwnProperty(name)) {
+				// Set container theme class
+				Object.keys(themes).forEach(n => container.classList.remove(n));
+				container.classList.add(name);
+
+				// Remove other theme css and add cur theme css
+				[...$All(cssParent, `style[theme]`)].forEach(style => cssParent.removeChild(style));
+				addStyle(cssParent, themes[name], {theme: name});
 				return true;
 			} else {
 				return false;
 			}
+		}
+
+		// Add a theme to themes set.
+		function addTheme(name, css) {
+			DATA.themes[name] = css;
+		}
+
+		// Remove a theme from themes set. <style> will be preserved untill setTheme() called.
+		function removeTheme(name) {
+			delete DATA.themes[name];
 		}
 
 		function updateElementSelect() {
@@ -571,6 +606,27 @@
 		e.preventDefault();
 	}
 
+	// Append a style text to document(<head>) with a <style> element
+	// arguments: css | parentElement, css | parentElement, css, attributes
+    function addStyle() {
+    	// Get arguments
+    	const [parentElement, css, attributes] = parseArgs([...arguments], [
+    		[2],
+    		[1,2],
+    		[1,2,3]
+    	], [document.head, '', {}]);
+
+    	// Make <style>
+		const style = document.createElement("style");
+		style.textContent = css;
+		for (const [name, val] of Object.entries(attributes)) {
+			style.setAttribute(name, val);
+		}
+
+		// Append to parentElement
+        parentElement.appendChild(style);
+    }
+
 	function parseArgs(args, rules, defaultValues=[]) {
 		// args and rules should be array, but not just iterable (string is also iterable)
 		if (!Array.isArray(args) || !Array.isArray(rules)) {
@@ -630,6 +686,13 @@
 		function isObject(value) {
 			return ['object', 'function'].includes(typeof value) && value !== null;
 		}
+	}
+
+	// escape str into javascript written format
+	function escJsStr(str, quote='"') {
+		str = str.replaceAll('\\', '\\\\').replaceAll(quote, '\\' + quote).replaceAll('\t', '\\t');
+		str = quote === '`' ? str.replaceAll(/(\$\{[^\}]*\})/g, '\\$1') : str.replaceAll('\r', '\\r').replaceAll('\n', '\\n');
+		return quote + str + quote;
 	}
 
 	// Returns a random string
